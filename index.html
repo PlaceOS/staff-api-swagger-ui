@@ -18,9 +18,12 @@
   <!-- <script src="dist/swagger-initializer.js" charset="UTF-8"> </script> -->
 
   <script>
-    renderSwagger = (url, availableVersions) => {
+    // versions.json maps a version name to its OpenAPI document, newest first
+    fetch('./versions.json')
+    .then((response) => response.json())
+    .then((availableVersions) => {
       window.ui = SwaggerUIBundle({
-        url: url,
+        urls: Object.entries(availableVersions).map(([name, url]) => ({ name, url })),
         dom_id: '#swagger-ui',
         deepLinking: true,
         presets: [
@@ -32,38 +35,6 @@
         ],
         layout: "StandaloneLayout"
       });
-
-      let wrapper = document.getElementsByClassName("download-url-wrapper")[0];
-      let options = [];
-
-      wrapper.innerHTML = "<label class=\"select-label\" for=\"select\"><span>Select a version</span><select id=\"select\" onchange=\"onVersionChange()\"></select></label>";
-
-      Object.keys(availableVersions).forEach((key) => {
-        if(url == availableVersions[key]){
-          options.push(`<option selected=\"selected\" value=\"${availableVersions[key]}\">${key}</option>`);
-        } else {
-          options.push(`<option value=\"${availableVersions[key]}\">${key}</option>`);
-        }
-      })
-
-      document.getElementById("select").innerHTML = options.join();
-    }
-
-    onVersionChange = () => {
-      let availableVersions = {};
-      let options = Array.from(document.getElementById("select").options);
-
-      options.forEach((option) => {
-        availableVersions[option.outerText] = option.value;
-      })
-
-      renderSwagger(document.getElementById("select").value, availableVersions);
-    }
-
-    fetch('./versions.json')
-    .then((response) => response.json())
-    .then((availableVersions) => {
-      renderSwagger(Object.values(availableVersions)[0], availableVersions);
     });
   </script>
 </body>
